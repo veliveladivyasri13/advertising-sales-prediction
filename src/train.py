@@ -1,60 +1,54 @@
 import pandas as pd
+import pickle
 import os
-import joblib
-import logging
 
 from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+
+import mlflow
+import mlflow.sklearn
 
 
 # -----------------------------
-# Paths
+# Create folders
 # -----------------------------
 
-PROCESSED_DIR = "data/processed"
-
-MODEL_DIR = "models"
-
-MODEL_PATH = "models/linear_regression_model.pkl"
-
-LOG_DIR = "logs"
+os.makedirs("models", exist_ok=True)
 
 
 # -----------------------------
-# Logging Configuration
+# Load processed data
 # -----------------------------
 
-os.makedirs(LOG_DIR, exist_ok=True)
+X_train = pd.read_csv(
+    "data/processed/X_train.csv"
+)
 
-logging.basicConfig(
-    filename="logs/project.log",
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s"
+y_train = pd.read_csv(
+    "data/processed/y_train.csv"
 )
 
 
-# -----------------------------
-# Load Training Data
-# -----------------------------
+# Convert target dataframe to series
 
-def load_training_data():
-
-    X_train = pd.read_csv(
-        f"{PROCESSED_DIR}/X_train.csv"
-    )
-
-    y_train = pd.read_csv(
-        f"{PROCESSED_DIR}/y_train.csv"
-    )
-
-    return X_train, y_train
-
+y_train = y_train.values.ravel()
 
 
 # -----------------------------
-# Train Model
+# MLflow Experiment
 # -----------------------------
 
-def train_model(X_train, y_train):
+mlflow.set_experiment(
+    "Advertising Sales Prediction"
+)
+
+
+with mlflow.start_run():
+
+
+    # -------------------------
+    # Model Training
+    # -------------------------
 
     model = LinearRegression()
 
@@ -63,94 +57,95 @@ def train_model(X_train, y_train):
         y_train
     )
 
-    return model
 
+    # -------------------------
+    # Training Metrics
+    # -------------------------
 
-
-# -----------------------------
-# Save Model
-# -----------------------------
-
-def save_model(model):
-
-    os.makedirs(
-        MODEL_DIR,
-        exist_ok=True
+    predictions = model.predict(
+        X_train
     )
 
-    joblib.dump(
+
+    mse = mean_squared_error(
+        y_train,
+        predictions
+    )
+
+
+    r2 = r2_score(
+        y_train,
+        predictions
+    )
+
+
+    # -------------------------
+    # Log Parameters
+    # -------------------------
+
+    mlflow.log_param(
+        "model",
+        "Linear Regression"
+    )
+
+
+    mlflow.log_param(
+        "features",
+        list(X_train.columns)
+    )
+
+
+    # -------------------------
+    # Log Metrics
+    # -------------------------
+
+    mlflow.log_metric(
+        "training_mse",
+        mse
+    )
+
+
+    mlflow.log_metric(
+        "training_r2",
+        r2
+    )
+
+
+    # -------------------------
+    # Save Model
+    # -------------------------
+
+    model_path = (
+        "models/"
+        "linear_regression_model.pkl"
+    )
+
+
+    with open(
+        model_path,
+        "wb"
+    ) as file:
+
+        pickle.dump(
+            model,
+            file
+        )
+
+
+    # -------------------------
+    # Log Model in MLflow
+    # -------------------------
+
+    mlflow.sklearn.log_model(
         model,
-        MODEL_PATH
-    )
-
-
-
-# -----------------------------
-# Main Execution
-# -----------------------------
-
-if __name__ == "__main__":
-
-    logging.info(
-        "Training process started"
-    )
-
-
-    # Load data
-    X_train, y_train = load_training_data()
-
-
-    logging.info(
-        f"Training data loaded: {X_train.shape}"
+        "linear_regression_model"
     )
 
 
     print(
-        "Training data loaded successfully."
+        "Model training completed successfully!"
     )
 
     print(
-        "X_train shape:",
-        X_train.shape
-    )
-
-    print(
-        "y_train shape:",
-        y_train.shape
-    )
-
-
-    # Train model
-    model = train_model(
-        X_train,
-        y_train
-    )
-
-
-    logging.info(
-        "Linear Regression model trained successfully"
-    )
-
-
-    print(
-        "Model trained successfully."
-    )
-
-
-    # Save model
-    save_model(model)
-
-
-    logging.info(
-        "Model saved successfully"
-    )
-
-
-    print(
-        "Model saved successfully."
-    )
-
-    print(
-        "Saved location:",
-        MODEL_PATH
+        f"Training R2 Score: {r2}"
     )

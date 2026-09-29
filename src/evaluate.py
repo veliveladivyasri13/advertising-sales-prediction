@@ -1,106 +1,169 @@
 import pandas as pd
-import joblib
+import pickle
 import os
 
 from sklearn.metrics import (
-    mean_absolute_error,
     mean_squared_error,
+    mean_absolute_error,
     r2_score
 )
 
-
-# Paths
-PROCESSED_DIR = "data/processed"
-MODEL_PATH = "models/linear_regression_model.pkl"
-OUTPUT_DIR = "outputs"
+import mlflow
 
 
+# -----------------------------
 # Load test data
-def load_test_data():
+# -----------------------------
 
-    X_test = pd.read_csv(
-        f"{PROCESSED_DIR}/X_test.csv"
-    )
+X_test = pd.read_csv(
+    "data/processed/X_test.csv"
+)
 
-    y_test = pd.read_csv(
-        f"{PROCESSED_DIR}/y_test.csv"
-    )
-
-    return X_test, y_test
+y_test = pd.read_csv(
+    "data/processed/y_test.csv"
+)
 
 
+# Convert target to array
+
+y_test = y_test.values.ravel()
+
+
+# -----------------------------
 # Load trained model
-def load_model():
+# -----------------------------
 
-    model = joblib.load(
-        MODEL_PATH
+model_path = (
+    "models/"
+    "linear_regression_model.pkl"
+)
+
+
+with open(
+    model_path,
+    "rb"
+) as file:
+
+    model = pickle.load(file)
+
+
+
+# -----------------------------
+# MLflow Experiment
+# -----------------------------
+
+mlflow.set_experiment(
+    "Advertising Sales Prediction"
+)
+
+
+with mlflow.start_run(
+    run_name="Model Evaluation"
+):
+
+
+    # -------------------------
+    # Prediction
+    # -------------------------
+
+    predictions = model.predict(
+        X_test
     )
 
-    return model
 
-
-# Evaluate model
-def evaluate_model(model, X_test, y_test):
-
-    predictions = model.predict(X_test)
-
-    mae = mean_absolute_error(
-        y_test,
-        predictions
-    )
+    # -------------------------
+    # Metrics
+    # -------------------------
 
     mse = mean_squared_error(
         y_test,
         predictions
     )
 
+
     rmse = mse ** 0.5
+
+
+    mae = mean_absolute_error(
+        y_test,
+        predictions
+    )
+
 
     r2 = r2_score(
         y_test,
         predictions
     )
 
-    return {
-        "MAE": mae,
-        "MSE": mse,
-        "RMSE": rmse,
-        "R2 Score": r2
-    }
+
+    # -------------------------
+    # Log Metrics to MLflow
+    # -------------------------
+
+    mlflow.log_metric(
+        "test_mse",
+        mse
+    )
 
 
-# Save evaluation results
-def save_results(results):
+    mlflow.log_metric(
+        "test_rmse",
+        rmse
+    )
+
+
+    mlflow.log_metric(
+        "test_mae",
+        mae
+    )
+
+
+    mlflow.log_metric(
+        "test_r2",
+        r2
+    )
+
+
+    # -------------------------
+    # Save evaluation output
+    # -------------------------
 
     os.makedirs(
-        OUTPUT_DIR,
+        "outputs",
         exist_ok=True
     )
 
-    results_df = pd.DataFrame(
-        [results]
+
+    results = pd.DataFrame(
+        {
+            "Metric": [
+                "MSE",
+                "RMSE",
+                "MAE",
+                "R2 Score"
+            ],
+
+            "Value": [
+                mse,
+                rmse,
+                mae,
+                r2
+            ]
+        }
     )
 
-    results_df.to_csv(
-        f"{OUTPUT_DIR}/model_evaluation.csv",
+
+    results.to_csv(
+        "outputs/model_evaluation.csv",
         index=False
     )
 
 
-# Main execution
-if __name__ == "__main__":
-
-    X_test, y_test = load_test_data()
-
-    model = load_model()
-
-    results = evaluate_model(
-        model,
-        X_test,
-        y_test
+    print(
+        "Model evaluation completed successfully!"
     )
 
-    save_results(results)
 
-    print("Model evaluation completed successfully.")
-    print(results)
+    print(
+        results
+    )

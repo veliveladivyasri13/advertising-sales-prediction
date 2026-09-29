@@ -1,52 +1,81 @@
 import pandas as pd
-import joblib
+import pickle
+import mlflow
 
 
-# Model path
-MODEL_PATH = "models/linear_regression_model.pkl"
+# -----------------------------
+# Load trained model
+# -----------------------------
+
+model_path = "models/linear_regression_model.pkl"
 
 
-# Load model
-def load_model():
-
-    model = joblib.load(
-        MODEL_PATH
-    )
-
-    return model
+with open(model_path, "rb") as file:
+    model = pickle.load(file)
 
 
-# Make prediction
-def predict_sales(model, tv, radio, newspaper):
+# -----------------------------
+# New Advertising Data
+# -----------------------------
 
-    input_data = pd.DataFrame(
-        {
-            "TV": [tv],
-            "Radio": [radio],
-            "Newspaper": [newspaper]
-        }
-    )
+new_data = pd.DataFrame(
+    {
+        "TV": [230],
+        "Radio": [37],
+        "Newspaper": [69]
+    }
+)
+
+
+# -----------------------------
+# MLflow Prediction Run
+# -----------------------------
+
+mlflow.set_experiment(
+    "Advertising Sales Prediction"
+)
+
+
+with mlflow.start_run(
+    run_name="Sales Prediction"
+):
+
 
     prediction = model.predict(
-        input_data
+        new_data
     )
 
-    return prediction[0][0]
+
+    predicted_sales = prediction[0]
 
 
-# Main execution
-if __name__ == "__main__":
+    # Log input values
 
-    model = load_model()
-
-    predicted_sales = predict_sales(
-        model,
-        tv=230.1,
-        radio=37.8,
-        newspaper=69.2
+    mlflow.log_param(
+        "TV",
+        230
     )
+
+    mlflow.log_param(
+        "Radio",
+        37
+    )
+
+    mlflow.log_param(
+        "Newspaper",
+        69
+    )
+
+
+    # Log prediction
+
+    mlflow.log_metric(
+        "predicted_sales",
+        predicted_sales
+    )
+
 
     print(
         "Predicted Sales:",
-        round(predicted_sales, 2)
+        predicted_sales
     )

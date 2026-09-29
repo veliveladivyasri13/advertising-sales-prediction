@@ -1,0 +1,23 @@
+artifact_path: file:D:/advertising-sales-prediction/mlruns/1/models/m-e9e1b053b6cc4292a53d613c2492a95b/artifacts
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.skops
+    predict_fn: predict
+    python_version: 3.14.6
+  sklearn:
+    code: null
+    pickled_model: model.skops
+    serialization_format: skops
+    sklearn_version: 1.9.1
+    skops_trusted_types: null
+mlflow_version: 3.16.1
+model_id: m-e9e1b053b6cc4292a53d613c2492a95b
+model_size_bytes: 7311
+model_uuid: m-e9e1b053b6cc4292a53d613c2492a95b
+prompts: null
+run_id: 21bf088b06e34f0da90cd0e81ecbf85d
+utc_time_created: '2026-09-29 16:41:52.414115'
