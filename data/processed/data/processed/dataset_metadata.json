@@ -1,0 +1,11 @@
+{
+    "dataset_name": "Advertising Sales Dataset",
+    "rows": 200,
+    "columns": 4,
+    "features": [
+        "TV",
+        "Radio",
+        "Newspaper"
+    ],
+    "target": "Sales"
+}

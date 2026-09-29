@@ -1,0 +1,11 @@
+2026-09-29 21:19:59,942 - INFO - Advertising Sales Prediction Pipeline Started
+2026-09-29 21:19:59,942 - INFO - Starting: python src/preprocess.py
+2026-09-29 21:20:02,384 - INFO - Completed: python src/preprocess.py
+2026-09-29 21:20:02,384 - INFO - Starting: python src/train.py
+2026-09-29 21:20:04,579 - INFO - Completed: python src/train.py
+2026-09-29 21:20:04,579 - INFO - Starting: python src/evaluate.py
+2026-09-29 21:20:06,544 - INFO - Completed: python src/evaluate.py
+2026-09-29 21:20:06,544 - INFO - Starting: python src/predict.py
+2026-09-29 21:20:08,562 - INFO - Completed: python src/predict.py
+2026-09-29 21:20:08,562 - INFO - Pipeline completed successfully
+2026-09-29 21:20:08,562 - INFO - Total time: 0:00:08.620377

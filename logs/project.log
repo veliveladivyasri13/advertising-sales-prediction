@@ -1,0 +1,8 @@
+2026-09-29 21:15:31,023 - INFO - Training process started
+2026-09-29 21:15:31,029 - INFO - Training data loaded: (160, 3)
+2026-09-29 21:15:31,066 - INFO - Linear Regression model trained successfully
+2026-09-29 21:15:31,067 - INFO - Model saved successfully
+2026-09-29 21:20:04,284 - INFO - Training process started
+2026-09-29 21:20:04,289 - INFO - Training data loaded: (160, 3)
+2026-09-29 21:20:04,316 - INFO - Linear Regression model trained successfully
+2026-09-29 21:20:04,317 - INFO - Model saved successfully

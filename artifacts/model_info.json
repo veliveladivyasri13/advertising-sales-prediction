@@ -1,0 +1,23 @@
+{
+    "project_name": "Advertising Sales Prediction",
+
+    "model_name": "Linear Regression",
+
+    "algorithm": "LinearRegression",
+
+    "dataset": {
+        "name": "Advertising Dataset",
+        "training_samples": 160,
+        "testing_samples": 40,
+        "features": [
+            "TV",
+            "Radio",
+            "Newspaper"
+        ],
+        "target": "Sales"
+    },
+
+    "model_file": "models/linear_regression_model.pkl",
+
+    "status": "trained"
+}
